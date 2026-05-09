@@ -1,0 +1,32 @@
+name: Build Osiris ISO
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-signed shim-signed mtools
+
+      - name: Run Osiris build script
+        run: |
+          chmod +x scripts/build-osiris.sh
+          sudo ./scripts/build-osiris.sh
+
+      - name: Upload Osiris ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: Osiris-Live-ISO
+          path: osiris.iso
+          retention-days: 30
